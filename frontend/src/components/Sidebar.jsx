@@ -11,11 +11,11 @@ import { FiSearch, FiLogOut, FiUser } from 'react-icons/fi'
 
 // Dummy users list
 const dummyUsers = [
-  { _id: '1', username: 'Alice', profilePic: null, lastMessage: 'Hey there!', lastMessageAt: '10:30 AM' },
-  { _id: '2', username: 'Bob', profilePic: null, lastMessage: 'See you tomorrow', lastMessageAt: '9:15 AM' },
-  { _id: '3', username: 'Carol', profilePic: null, lastMessage: 'Sounds good!', lastMessageAt: 'Yesterday' },
-  { _id: '4', username: 'David', profilePic: null, lastMessage: 'Ok got it', lastMessageAt: 'Yesterday' },
-  { _id: '5', username: 'Eva', profilePic: null, lastMessage: 'Thanks!', lastMessageAt: 'Monday' },
+  { _id: '1', username: 'Chocolate Icecream', profilePic: null, lastMessage: 'Hey there!', lastMessageAt: '10:30 AM' },
+  { _id: '2', username: 'Frankie', profilePic: null, lastMessage: 'See you tomorrow', lastMessageAt: '9:15 AM' },
+  { _id: '3', username: 'Dhosu', profilePic: null, lastMessage: 'Sounds good!', lastMessageAt: 'Yesterday' },
+  { _id: '4', username: 'Manchurian Noodles', profilePic: null, lastMessage: 'Ok got it', lastMessageAt: 'Yesterday' },
+  { _id: '5', username: 'Pizzaaa', profilePic: null, lastMessage: 'Thanks!', lastMessageAt: 'Monday' },
 ]
 
 const Sidebar = ({ selectedUser, onSelectUser }) => {
