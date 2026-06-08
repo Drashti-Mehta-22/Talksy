@@ -5,12 +5,18 @@ import { connectDB} from './src/config/db.js'
 import authRoutes from './src/routes/authRoutes.js'
 import userRoutes from './src/routes/userRoutes.js'
 import messageRoutes from './src/routes/messageRoutes.js'
+import { setupSocket} from './src/socket/socket.js'
+import http from 'http'
 
 // Load environment variables
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// Creating HTTP server from express app because Socket.io needs this instead of app.listen directly
+const server = http.createServer(app)
+setupSocket(server)
 
 // Middlewares
 app.use(express.json())
