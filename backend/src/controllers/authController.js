@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
+import cloudinary from '../config/cloudinary.js'
+import fs from 'fs'
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -26,11 +28,20 @@ export const register = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    // Handle profile pic upload if provided
+    let profilePicUrl = ''
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path)
+      profilePicUrl = result.secure_url
+      fs.unlinkSync(req.file.path)
+    }
+
     // Create new user
     const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
+      profilePic: profilePicUrl,
     })
 
     // Generate token

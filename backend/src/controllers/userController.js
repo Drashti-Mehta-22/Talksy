@@ -1,4 +1,6 @@
 import User from '../models/User.js'
+import cloudinary from '../config/cloudinary.js'
+import fs from 'fs'
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -30,10 +32,18 @@ export const updateProfile = async (req, res) => {
   try {
     const { username } = req.body
 
-    // profilePic url will come from cloudinary — added in B6
+    let updateData = { username }
+
+    // Handle profile pic upload if provided
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path)
+      updateData.profilePic = result.secure_url
+      fs.unlinkSync(req.file.path)
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
-      { username },
+      updateData,
       { new: true }
     ).select('-password')
 

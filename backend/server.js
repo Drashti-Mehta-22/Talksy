@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 })
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
   connectDB()
 })

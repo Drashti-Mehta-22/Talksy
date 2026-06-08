@@ -1,9 +1,13 @@
 import React from 'react'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import socket from '../services/socket'
 
 const Login = () => {
     const navigate = useNavigate()
+    const { login } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,12 +26,24 @@ const Login = () => {
 
     setLoading(true)
 
-    // TODO: connect to backend later
-    // For now just navigate to home
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      const res = await api.post('/auth/login', { email, password })
+
+      // Store user in context and localStorage
+      login(res.data.user, res.data.token)
+
+      // Connect socket and register user
+      socket.connect()
+      socket.emit('join', res.data.user._id)
+
       navigate('/home')
-    }, 1000)
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  
   }
   return (
      <div className="min-h-screen flex items-center justify-center px-4"

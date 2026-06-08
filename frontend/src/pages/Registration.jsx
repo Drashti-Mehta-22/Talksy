@@ -1,10 +1,14 @@
 import React from 'react'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import socket from '../services/socket'
 
 const Registration = () => {
 
-   const navigate = useNavigate()
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -17,7 +21,7 @@ const Registration = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // setProfilePic(file)
+      setProfilePic(file)
       setPreview(URL.createObjectURL(file))
     }
   }
@@ -33,12 +37,34 @@ const Registration = () => {
 
     setLoading(true)
 
-    // TODO: connect to backend later
-    setTimeout(() => {
+    try {
+      // FormData because we might have an image file
+      const formData = new FormData()
+      formData.append('username', username)
+      formData.append('email', email)
+      formData.append('password', password)
+      if (profilePic) {
+        formData.append('profilePic', profilePic)
+      }
+
+      const res = await api.post('/auth/register', formData)
+
+      // Store user in context and localStorage
+      login(res.data.user, res.data.token)
+
+      // Connect socket and register user
+      socket.connect()
+      socket.emit('join', res.data.user._id)
+
+      navigate('/home')
+
+    } catch (err) {
+      setError(err.response?.data?.message || err.message)
+    } finally {
       setLoading(false)
-      navigate('/login')
-    }, 1000)
+    }
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8"
       style={{ backgroundColor: '#0F1117' }}>
@@ -53,7 +79,6 @@ const Registration = () => {
           </p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-4 text-sm text-red-400 text-center">
             {error}
@@ -64,7 +89,6 @@ const Registration = () => {
 
           {/* Profile Picture Upload */}
           <div className="flex flex-col items-center gap-2 mb-2">
-
             <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center"
               style={{ backgroundColor: '#0F1117', border: '2px solid #2B2F3A' }}>
               {preview ? (
@@ -73,10 +97,9 @@ const Registration = () => {
                 <span className="text-3xl" style={{ color: '#B0B0B0' }}>👤</span>
               )}
             </div>
-
-            <label className="text-sm cursor-pointer hover:underline"
-              style={{ color: '#9f75ff' }}>
-              Profile Picture
+            <label className="text-xs cursor-pointer hover:underline"
+              style={{ color: '#8B5CF6' }}>
+              Upload Profile Picture (Optional)
               <input
                 type="file"
                 accept="image/*"
@@ -84,10 +107,8 @@ const Registration = () => {
                 onChange={handleImageChange}
               />
             </label>
-
           </div>
 
-          {/* Username */}
           <div className="flex flex-col gap-1">
             <label className="text-sm" style={{ color: '#B0B0B0' }}>Username</label>
             <input
@@ -100,7 +121,6 @@ const Registration = () => {
             />
           </div>
 
-          {/* Email */}
           <div className="flex flex-col gap-1">
             <label className="text-sm" style={{ color: '#B0B0B0' }}>Email</label>
             <input
@@ -113,7 +133,6 @@ const Registration = () => {
             />
           </div>
 
-          {/* Password */}
           <div className="flex flex-col gap-1">
             <label className="text-sm" style={{ color: '#B0B0B0' }}>Password</label>
             <input
@@ -126,7 +145,6 @@ const Registration = () => {
             />
           </div>
 
-          {/* Register Button */}
           <button
             type="submit"
             disabled={loading}
@@ -137,7 +155,6 @@ const Registration = () => {
 
         </form>
 
-        {/* Login Redirect */}
         <p className="mt-6 text-sm text-center" style={{ color: '#B0B0B0' }}>
           Already have an account?{' '}
           <Link to="/login" style={{ color: '#8B5CF6' }} className="hover:underline">

@@ -1,37 +1,44 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiSearch, FiLogOut, FiUser } from 'react-icons/fi'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import socket from '../services/socket'
 
-  const currentUser = {
-  _id: 'me',
-  username: 'Abc',
-  profilePic: null
-}
-
-// Dummy users list
-const dummyUsers = [
-  { _id: '1', username: 'Chocolate Icecream', profilePic: null, lastMessage: 'Hey there!', lastMessageAt: '10:30 AM' },
-  { _id: '2', username: 'Frankie', profilePic: null, lastMessage: 'See you tomorrow', lastMessageAt: '9:15 AM' },
-  { _id: '3', username: 'Dhosu', profilePic: null, lastMessage: 'Sounds good!', lastMessageAt: 'Yesterday' },
-  { _id: '4', username: 'Manchurian Noodles', profilePic: null, lastMessage: 'Ok got it', lastMessageAt: 'Yesterday' },
-  { _id: '5', username: 'Pizzaaa', profilePic: null, lastMessage: 'Thanks!', lastMessageAt: 'Monday' },
-]
 
 const Sidebar = ({ selectedUser, onSelectUser }) => {
 
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
+  const { user, logout } = useAuth()
 
-  // Filter users based on search input
-  const filteredUsers = dummyUsers.filter(user =>
-    user.username.toLowerCase().includes(search.toLowerCase())
-  )
+  const [search, setSearch] = useState('')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await api.get('/users')
+        setUsers(res.data)
+      } catch (err) {
+        console.log('Fetch users error:', err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUsers()
+  }, [])
 
   const handleLogout = () => {
-    // TODO: clear token later
+    socket.disconnect()
+    logout()
     navigate('/login')
   }
+
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(search.toLowerCase())
+  )
 
   // Get first letter of username for avatar placeholder
   const getInitial = (name) => name?.charAt(0).toUpperCase()
@@ -138,10 +145,10 @@ const Sidebar = ({ selectedUser, onSelectUser }) => {
         {/* Avatar */}
         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium shrink-0"
           style={{ backgroundColor: '#8B5CF6' }}>
-          {getInitial(currentUser.username)}
+          {getInitial(user?.username)}
         </div>
 
-        <p className="text-sm text-white truncate">{currentUser.username}</p>
+        <p className="text-sm text-white truncate">{user?.username}</p>
       </div>
 
     </div>

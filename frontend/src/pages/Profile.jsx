@@ -1,24 +1,20 @@
 import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-// Dummy current user
-const currentUser = {
-  username: 'John Doe',
-  email: 'john@example.com',
-  profilePic: null
-}
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 const Profile = () => {
 
   const navigate = useNavigate()
+  const { user, login } = useAuth()
 
-  const [username, setUsername] = useState(currentUser.username)
-  const [email] = useState(currentUser.email)
-  const [profilePic, setProfilePic] = useState(currentUser.profilePic)
-  const [preview, setPreview] = useState(currentUser.profilePic)
+  const [username, setUsername] = useState(user?.username || '')
+  const [profilePic, setProfilePic] = useState(null)
+  const [preview, setPreview] = useState(user?.profilePic || null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
+  const [error, setError] = useState('')
 
   const getInitial = (name) => name?.charAt(0).toUpperCase()
 
@@ -30,27 +26,42 @@ const Profile = () => {
     }
   }
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
     setLoading(true)
 
-    // TODO: connect to backend later
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      const formData = new FormData()
+      formData.append('username', username)
+      if (profilePic) {
+        formData.append('profilePic', profilePic)
+      }
+
+      const res = await api.put('/users/profile', formData)
+
+      // Update user in context and localStorage
+      const token = localStorage.getItem('token')
+      login(res.data, token)
+
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(''), 3000)
-    }, 1000)
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4"
       style={{ backgroundColor: '#0F1117' }}>
 
-      {/* Card */}
       <div className="w-full max-w-md p-8 rounded-2xl"
         style={{ backgroundColor: '#1A1D24', border: '1px solid #2B2F3A' }}>
 
-        {/* Back Button */}
         <button
           onClick={() => navigate('/home')}
           className="text-sm mb-6 hover:underline cursor-pointer"
@@ -58,14 +69,17 @@ const Profile = () => {
           ← Back to Chats
         </button>
 
-        {/* Heading */}
         <h2 className="text-xl font-semibold text-white mb-6">Your Profile</h2>
 
-        {/* Success Message */}
         {success && (
-          <div className="mb-4 text-sm text-center"
-            style={{ color: '#8B5CF6' }}>
+          <div className="mb-4 text-sm text-center" style={{ color: '#8B5CF6' }}>
             {success}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-4 text-sm text-center text-red-400">
+            {error}
           </div>
         )}
 
@@ -73,8 +87,6 @@ const Profile = () => {
 
           {/* Profile Picture */}
           <div className="flex flex-col items-center gap-2 mb-2">
-
-            {/* Circle */}
             <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl font-semibold"
               style={{ backgroundColor: '#8B5CF6', border: '2px solid #2B2F3A' }}>
               {preview ? (
@@ -84,8 +96,6 @@ const Profile = () => {
                 getInitial(username)
               )}
             </div>
-
-            {/* Upload Label */}
             <label className="text-xs cursor-pointer hover:underline"
               style={{ color: '#8B5CF6' }}>
               Change Profile Picture
@@ -96,14 +106,11 @@ const Profile = () => {
                 onChange={handleImageChange}
               />
             </label>
-
           </div>
 
           {/* Username */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm" style={{ color: '#B0B0B0' }}>
-              Username
-            </label>
+            <label className="text-sm" style={{ color: '#B0B0B0' }}>Username</label>
             <input
               type="text"
               value={username}
@@ -115,12 +122,10 @@ const Profile = () => {
 
           {/* Email — read only */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm" style={{ color: '#B0B0B0' }}>
-              Email
-            </label>
+            <label className="text-sm" style={{ color: '#B0B0B0' }}>Email</label>
             <input
               type="email"
-              value={email}
+              value={user?.email || ''}
               readOnly
               className="w-full px-4 py-3 rounded-lg text-sm outline-none cursor-not-allowed"
               style={{
@@ -134,7 +139,6 @@ const Profile = () => {
             </span>
           </div>
 
-          {/* Update Button */}
           <button
             type="submit"
             disabled={loading}

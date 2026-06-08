@@ -1,12 +1,25 @@
+import cloudinary from '../config/cloudinary.js'
+import fs from 'fs'
 import Message from '../models/Message.js'
 import Conversation from '../models/Conversation.js'
 
 // SEND MESSAGE
 export const sendMessage = async (req, res) => {
   try {
-    const { text, imageUrl } = req.body
+    const { text } = req.body
     const receiverId = req.params.receiverId
     const senderId = req.user._id
+
+    // Handle image upload if file exists
+    let imageUrl = ''
+    if (req.file) {
+      // Upload to cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path)
+      imageUrl = result.secure_url
+
+      // Delete temp file after upload
+      fs.unlinkSync(req.file.path)
+    }
 
     // Find existing conversation between these two users
     let conversation = await Conversation.findOne({
