@@ -253,7 +253,7 @@ const ChatBox = ({ selectedUser, onBack }) => {
 
       </div>
 
-      {/* ── IMAGE PREVIEW ── */}
+      {/*IMAGE PREVIEW*/}
       {imagePreview && (
         <div className="px-4 py-2 flex items-center gap-2 shrink-0"
           style={{ borderTop: '1px solid #2B2F3A' }}>
