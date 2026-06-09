@@ -271,7 +271,7 @@ const ChatBox = ({ selectedUser, onBack }) => {
         </div>
       )}
 
-      {/* ── INPUT ── */}
+      {/* INPUT */}
       <div className="flex items-center gap-2 px-4 py-3 shrink-0"
         style={{ backgroundColor: '#1A1D24', borderTop: '1px solid #2B2F3A' }}>
           

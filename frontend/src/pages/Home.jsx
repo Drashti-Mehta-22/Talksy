@@ -4,7 +4,6 @@ import Sidebar from '../components/Sidebar'
 import ChatBox from '../components/ChatBox'
 
 const Home = () => {
-
   
   const [selectedUser, setSelectedUser] = useState(null)
   const [showChat, setShowChat] = useState(false)
