@@ -20,7 +20,13 @@ setupSocket(server)
 
 // Middlewares
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://talksy.vercel.app'
+  ],
+  credentials: true
+}))
 
 // Routes
 app.use('/api/auth', authRoutes)

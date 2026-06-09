@@ -7,7 +7,10 @@ export const setupSocket = (server) => {
 
   const io = new Server(server, {
     cors: {
-      origin: 'http://localhost:5173', // frontend url
+      origin: [
+      'http://localhost:5173',
+      'https://talksy.vercel.app'
+    ], // frontend url
       methods: ['GET', 'POST']
     }
   })
