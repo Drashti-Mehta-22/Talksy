@@ -23,7 +23,7 @@ app.use(express.json())
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://talksy.vercel.app'
+    'https://talksy-chat-application.vercel.app'
   ],
   credentials: true
 }))
