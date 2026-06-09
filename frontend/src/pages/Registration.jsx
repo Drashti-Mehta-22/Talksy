@@ -99,7 +99,7 @@ const Registration = () => {
             </div>
             <label className="text-xs cursor-pointer hover:underline"
               style={{ color: '#8B5CF6' }}>
-              Upload Profile Picture (Optional)
+              Profile Picture
               <input
                 type="file"
                 accept="image/*"
@@ -113,7 +113,7 @@ const Registration = () => {
             <label className="text-sm" style={{ color: '#B0B0B0' }}>Username</label>
             <input
               type="text"
-              placeholder="johndoe"
+              placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-lg text-sm text-white outline-none"
